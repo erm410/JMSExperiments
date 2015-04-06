@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Handles all requests by publishing them to a JMS queue.
@@ -24,16 +23,25 @@ public class DefaultServlet extends HttpServlet {
 	@Resource(name = "jms/destination1")
 	private Destination destination1;
 
-	private Session session;
-	private MessageProducer destination1Producer;
-	private Connection connection;
+	@Resource(name = "jms/destination2")
+	private Destination destination2;
+
+	private Session session1;
+	private MessageProducer producer1;
+	private Connection connection1;
+	private Connection connection2;
+	private Session session2;
+	private MessageProducer producer2;
 
 	@PostConstruct
 	public void init() {
 		try {
-			connection = factory.createConnection();
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			destination1Producer = session.createProducer(destination1);
+			connection1 = factory.createConnection();
+			session1 = connection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			producer1 = session1.createProducer(destination1);
+			connection2 = factory.createConnection();
+			session2 = connection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			producer2 = session2.createProducer(destination2);
 		} catch (JMSException e) {
 			throw new RuntimeException(e);
 		}
@@ -42,7 +50,8 @@ public class DefaultServlet extends HttpServlet {
 	@PreDestroy
 	public void dispose() {
 		try {
-			connection.close();
+			connection1.close();
+			connection2.close();
 		} catch (JMSException e) {
 			throw new RuntimeException(e);
 		}
@@ -55,16 +64,23 @@ public class DefaultServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try (InputStream bodyStream = req.getInputStream()) {
-			StreamMessage message = session.createStreamMessage();
-			int bytesRead;
-			byte[] bytes = new byte[1024];
 
-			while ((bytesRead = bodyStream.read(bytes)) != -1) {
-				message.writeBytes(bytes, 0 ,bytesRead);
-			}
+		String destination = req.getParameter("destination");
+		Session session;
+		MessageProducer producer;
+		if (destination.equals("1")) {
+			session = session1;
+			producer = producer1;
+		} else {
+			session = session2;
+			producer = producer2;
+		}
 
-			destination1Producer.send(message);
+		String messageText = req.getParameter("text");
+		try {
+			TextMessage message = session.createTextMessage();
+			message.setText(messageText);
+			producer.send(message);
 		} catch (JMSException e) {
 			throw new RuntimeException(e);
 		}

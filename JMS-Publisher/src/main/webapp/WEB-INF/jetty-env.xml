@@ -25,4 +25,14 @@
             </New>
         </Arg>
     </New>
+    <New id="jmsConnectionFactory" class="org.eclipse.jetty.plus.jndi.Resource">
+        <Arg><Ref id="wac" /></Arg>
+        <Arg>jms/destination2</Arg>
+        <Arg>
+            <New class="org.skyscreamer.nevado.jms.destination.NevadoTopic">
+                <Arg>destination2</Arg>
+                <Set name="arn">arn:aws:sns:us-east-1:720447639232:destination2</Set>
+            </New>
+        </Arg>
+    </New>
 </Configure>

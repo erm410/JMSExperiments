@@ -7,8 +7,8 @@
         <Arg>jms/connectionFactory</Arg>
         <Arg>
             <New class="org.skyscreamer.nevado.jms.NevadoConnectionFactory">
-                <Set name="awsAccessKey">AKIAJ2SEDZLJKMNDSEZQ</Set>
-                <Set name="awsSecretKey">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</Set>
+                <Set name="awsAccessKey">xxx</Set>
+                <Set name="awsSecretKey">xxx</Set>
                 <Set name="sqsConnectorFactory">
                     <New class="org.skyscreamer.nevado.jms.connector.amazonaws.AmazonAwsSQSConnectorFactory"/>
                 </Set>
@@ -21,7 +21,7 @@
         <Arg>
             <New class="org.skyscreamer.nevado.jms.destination.NevadoQueue">
                 <Arg>destination1</Arg>
-                <Set name="queueUrl">https://sqs.us-east-1.amazonaws.com/720447639232/destination1</Set>
+                <Set name="queueUrl">https://sqs.us-east-1.amazonaws.com/xxx/destination1</Set>
             </New>
         </Arg>
     </New>

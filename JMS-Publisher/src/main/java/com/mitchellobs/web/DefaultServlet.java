@@ -4,6 +4,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.jms.*;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,7 +25,7 @@ public class DefaultServlet extends HttpServlet {
 	@Resource(name = "jms/destination1")
 	private Destination destination1;
 
-	@Resource(name = "jms/destination2")
+	//@Resource(name = "jms/destination2")
 	private Destination destination2;
 
 	private Session session1;
@@ -32,6 +34,10 @@ public class DefaultServlet extends HttpServlet {
 	private Connection connection2;
 	private Session session2;
 	private MessageProducer producer2;
+
+	public DefaultServlet() throws NamingException {
+		destination2 = (Destination) new InitialContext().lookup("java:comp/env/jms/destination2");
+	}
 
 	@PostConstruct
 	public void init() {

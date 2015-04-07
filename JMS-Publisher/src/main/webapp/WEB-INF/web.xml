@@ -7,4 +7,17 @@
         version="3.0"
         metadata-complete="false">
 
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>realm1</realm-name>
+    </login-config>
+
+    <security-role>
+        <role-name>getter</role-name>
+    </security-role>
+
+    <security-role>
+        <role-name>poster</role-name>
+    </security-role>
+
 </web-app>

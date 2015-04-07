@@ -7,6 +7,8 @@ import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpMethodConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,8 +18,12 @@ import java.io.IOException;
 /**
  * Handles all requests by publishing them to a JMS queue.
  */
-@WebServlet(name = "default", urlPatterns = {"/"})
-public class DefaultServlet extends HttpServlet {
+@WebServlet(name = "publish", urlPatterns = {"/publish"})
+@ServletSecurity(httpMethodConstraints = {
+		@HttpMethodConstraint(value = "GET", rolesAllowed = {"getter"}),
+		@HttpMethodConstraint(value = "POST", rolesAllowed = {"poster"})
+})
+public class PublishServlet extends HttpServlet {
 
 	@Resource(name = "jms/connectionFactory")
 	private ConnectionFactory factory;
@@ -35,7 +41,7 @@ public class DefaultServlet extends HttpServlet {
 	private Session session2;
 	private MessageProducer producer2;
 
-	public DefaultServlet() throws NamingException {
+	public PublishServlet() throws NamingException {
 		destination2 = (Destination) new InitialContext().lookup("java:comp/env/jms/destination2");
 	}
 
@@ -65,7 +71,7 @@ public class DefaultServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+		reply(resp);
 	}
 
 	@Override
@@ -91,6 +97,10 @@ public class DefaultServlet extends HttpServlet {
 			throw new RuntimeException(e);
 		}
 
+		reply(resp);
+	}
+
+	private void reply(HttpServletResponse resp) throws IOException {
 		resp.setStatus(HttpServletResponse.SC_OK);
 		resp.setContentType("text/plain");
 		resp.getWriter().write("Hello World".toCharArray());
